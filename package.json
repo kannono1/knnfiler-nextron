@@ -1,9 +1,9 @@
 {
   "private": true,
-  "name": "my-nextron-app",
-  "description": "My application description",
+  "name": "knnfiler-nextron",
+  "description": "knnfiler-nextron application description",
   "version": "1.0.0",
-  "author": "Yoshihide Shiono <shiono.yoshihide@gmail.com>",
+  "author": "kannoweb",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
