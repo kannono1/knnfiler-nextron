@@ -1,6 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
-import FileList from '../components/FileList';
+import FileLists from '../components/FileLists';
 
 const Home = () => {
   return (
@@ -8,10 +8,7 @@ const Home = () => {
       <Head>
         <title>knnfiler-nextron</title>
       </Head>
-      <div>
-        <FileList wid={0}></FileList>
-        <FileList wid={1}></FileList>
-      </div>
+      <FileLists></FileLists>
     </React.Fragment>
   );
 };
