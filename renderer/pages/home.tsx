@@ -1,21 +1,16 @@
 import React from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+import FileList from '../components/FileList';
 
 const Home = () => {
   return (
     <React.Fragment>
       <Head>
-        <title>Home - Nextron (with-typescript)</title>
+        <title>knnfiler-nextron</title>
       </Head>
       <div>
-        <p>
-          ⚡ Electron + Next.js ⚡ -
-          <Link href="/next">
-            <a>Go to next page</a>
-          </Link>
-        </p>
-        <img src="/images/logo.png" />
+        <FileList wid={0}></FileList>
+        <FileList wid={1}></FileList>
       </div>
     </React.Fragment>
   );
