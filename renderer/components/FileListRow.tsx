@@ -1,42 +1,33 @@
 import React from "react";
+import styled from '@emotion/styled'
 
 type Props = {
     wid: number;
     no: number;
 }
 
-const styles: { [key: string]: React.CSSProperties } = {
-    wrapper: {
-        display: 'flex',
-    },
-    filename: {
-        width: '50%',
-    },
-    filesize: {
-        width: '20%',
-    },
-    updated: {
-        width: '20%',
-    },
-};
+type DivProps = {
+    active: Boolean;
+}
 
-const stylesActive: { [key: string]: React.CSSProperties } = {
-    wrapper: {
-        display: 'flex',
-    },
-    filename: {
-        width: '50%',
-        backgroundColor: 'green',
-    },
-    filesize: {
-        width: '20%',
-        backgroundColor: 'green',
-    },
-    updated: {
-        width: '20%',
-        backgroundColor: 'green',
-    },
-};
+const Container = styled.div(() => ({
+    display: 'flex',
+}));
+
+const FileName = styled.div<DivProps>(props => ({
+    width: '50%',
+    backgroundColor: props.active && 'green',
+}));
+
+const FileSize = styled.div<DivProps>(props => ({
+    width: '20%',
+    backgroundColor: props.active && 'green',
+}));
+
+const Updated = styled.div<DivProps>(props => ({
+    width: '20%',
+    backgroundColor: props.active && 'green',
+}));
 
 const isActive = (wid, no) => {
     return (wid == 0 && no == 0);
@@ -44,11 +35,11 @@ const isActive = (wid, no) => {
 
 const FileListRow: React.FC<Props> = ({ wid, no }) => {
     return (
-        <div style={(isActive(wid, no)) ? stylesActive.wrapper : styles.wrapper}>
-            <div style={(isActive(wid, no)) ? stylesActive.filename : styles.filename}>FileName{wid}-{no}</div>
-            <div style={(isActive(wid, no)) ? stylesActive.filesize : styles.filesize}>FileSize{wid}</div>
-            <div style={(isActive(wid, no)) ? stylesActive.updated : styles.updated}>Updated{wid}</div>
-        </div>
+        <Container>
+            <FileName active={isActive(wid, no)}>FileName{wid}-{no}</FileName>
+            <FileSize active={isActive(wid, no)}>FileSize{wid}</FileSize>
+            <Updated active={isActive(wid, no)}>Updated{wid}</Updated>
+        </Container>
     );
 };
 

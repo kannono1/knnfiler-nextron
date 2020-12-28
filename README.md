@@ -1,4 +1,4 @@
-<p align="center"><img src="https://i.imgur.com/NZfsD1p.png"></p>
+<p align="center"><img src="https://i.imgur.com/3UKgyH7.png"></p>
 
 ## Usage
 
@@ -6,13 +6,13 @@
 
 ```
 # with npm
-$ npm init nextron-app my-app --example with-typescript
+$ npm init nextron-app my-app --example with-typescript-emotion
 
 # with yarn
-$ yarn create nextron-app my-app --example with-typescript
+$ yarn create nextron-app my-app --example with-typescript-emotion
 
 # with pnpx
-$ pnpx create-nextron-app my-app --example with-typescript
+$ pnpx create-nextron-app my-app --example with-typescript-emotion
 ```
 
 ### Install Dependencies
