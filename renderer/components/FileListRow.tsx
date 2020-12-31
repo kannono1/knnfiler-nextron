@@ -1,5 +1,6 @@
 import React from "react";
 import styled from '@emotion/styled'
+import { useSelector } from "react-redux";
 
 type Props = {
     wid: number;
@@ -29,11 +30,11 @@ const Updated = styled.div<DivProps>(props => ({
     backgroundColor: props.active && 'green',
 }));
 
-const isActive = (wid, no) => {
-    return (wid == 0 && no == 0);
-}
-
 const FileListRow: React.FC<Props> = ({ wid, no }) => {
+    const cursorIndex = useSelector(state => state.user.cursorIndex);
+    const isActive = (wid, no) => {
+        return (wid == 0 && no == cursorIndex);
+    }
     return (
         <Container>
             <FileName active={isActive(wid, no)}>FileName{wid}-{no}</FileName>

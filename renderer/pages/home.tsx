@@ -1,4 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
+import { Provider } from "react-redux";
+import store from "../model/";
 import Head from 'next/head';
 import FileLists from '../components/FileLists';
 
@@ -27,7 +29,9 @@ const Home = () => {
       <Head>
         <title>knnfiler-nextron</title>
       </Head>
-      <FileLists></FileLists>
+      <Provider store={store}>
+        <FileLists></FileLists>
+      </Provider>
     </React.Fragment>
   );
 };

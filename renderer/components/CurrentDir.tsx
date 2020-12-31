@@ -1,15 +1,16 @@
 import React from "react";
+import styled from '@emotion/styled'
 
 type Props = {
     wid: number;
 }
 
-const style: React.CSSProperties = {
+const Container = styled.div( () => ({
     width: '50%',
-};
+}));
 
 const CurrentDir: React.FC<Props> = ({ wid }) => {
-    return <div>CurrentDir{wid}</div>;
+    return <Container>CurrentDir{wid}</Container>;
 };
 
 export default CurrentDir;

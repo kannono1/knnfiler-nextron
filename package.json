@@ -11,8 +11,12 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.5.0",
+    "electron-redux": "^1.5.4",
     "electron-serve": "^1.0.0",
-    "electron-store": "^6.0.1"
+    "electron-store": "^6.0.1",
+    "react-redux": "^7.2.2",
+    "redux": "^4.0.5"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.0.0",
