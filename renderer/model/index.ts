@@ -1,11 +1,9 @@
 import { combineReducers } from "redux";
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./user";
-import todoReducer from "./todos";
+import filesReducer from "./files";
 
 const reducer = combineReducers({
-  user: userReducer,
-  todos: todoReducer
+  files: filesReducer,
 });
 
 const store = configureStore({ reducer });
