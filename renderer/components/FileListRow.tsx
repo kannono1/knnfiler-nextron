@@ -32,8 +32,9 @@ const Updated = styled.div<DivProps>(props => ({
 
 const FileListRow: React.FC<Props> = ({ wid, no }) => {
     const cursorIndex = useSelector(state => state.files.cursorIndex);
+    const Wid = useSelector(state => state.files.wid);
     const isActive = (wid, no) => {
-        return (wid == 0 && no == cursorIndex);
+        return (wid == Wid && no == cursorIndex);
     }
     return (
         <Container>
