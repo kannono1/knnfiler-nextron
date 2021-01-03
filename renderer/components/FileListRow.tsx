@@ -10,6 +10,7 @@ type Props = {
 
 type DivProps = {
     active: Boolean;
+    isdir?: Boolean;
 }
 
 const Container = styled.div(() => ({
@@ -18,18 +19,21 @@ const Container = styled.div(() => ({
 
 const FileName = styled.div<DivProps>(props => ({
     width: '50%',
+    color: props.isdir && 'yellow',
     backgroundColor: props.active && 'green',
 }));
 
 const FileSize = styled.div<DivProps>(props => ({
     width: '15%',
     textAlign: 'right',
+    color: props.isdir && 'yellow',
     backgroundColor: props.active && 'green',
 }));
 
 const Updated = styled.div<DivProps>(props => ({
     width: '30%',
     textAlign: 'right',
+    color: props.isdir && 'yellow',
     backgroundColor: props.active && 'green',
 }));
 
@@ -42,9 +46,9 @@ const FileListRow: React.FC<Props> = ({ wid, no }) => {
     }
     return (
         <Container>
-            <FileName active={isActive(wid, no)}>{(fileInfo == null) ? '' : fileInfo.fileName}</FileName>
-            <FileSize active={isActive(wid, no)}>{(fileInfo == null) ? '' : (fileInfo.isDir) ? 'DIR' : fileInfo.fileSize.toLocaleString()}</FileSize>
-            <Updated active={isActive(wid, no)}>{(fileInfo == null) ? '' : fileInfo.updated}</Updated>
+            <FileName active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>{(fileInfo == null) ? '' : fileInfo.fileName}</FileName>
+            <FileSize active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>{(fileInfo == null) ? '' : (fileInfo.isDir) ? 'DIR' : fileInfo.fileSize.toLocaleString()}</FileSize>
+            <Updated active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>{(fileInfo == null) ? '' : fileInfo.updated}</Updated>
         </Container>
     );
 };
