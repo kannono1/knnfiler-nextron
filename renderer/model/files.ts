@@ -20,7 +20,7 @@ const initialState = {
 const readDir = (dir) => {
     const files = fs.readdirSync(dir);
     return files.map((fn) => {
-        const p = path.join(dir);
+        const p = path.join(dir, fn);
         const stat = fs.statSync(p);
         const fileInfo: FileInfo = {
             fileName: fn,
