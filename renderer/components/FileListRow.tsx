@@ -1,6 +1,7 @@
 import React from "react";
 import styled from '@emotion/styled'
 import { useSelector } from "react-redux";
+import { FileInfo } from '../data/FileInfo';
 
 type Props = {
     wid: number;
@@ -21,26 +22,29 @@ const FileName = styled.div<DivProps>(props => ({
 }));
 
 const FileSize = styled.div<DivProps>(props => ({
-    width: '20%',
+    width: '15%',
+    textAlign: 'right',
     backgroundColor: props.active && 'green',
 }));
 
 const Updated = styled.div<DivProps>(props => ({
-    width: '20%',
+    width: '30%',
+    textAlign: 'right',
     backgroundColor: props.active && 'green',
 }));
 
 const FileListRow: React.FC<Props> = ({ wid, no }) => {
     const cursorIndex = useSelector(state => state.files.cursorIndex);
     const Wid = useSelector(state => state.files.wid);
+    const fileInfo: FileInfo = useSelector(state => state.files.fileList[wid][no]);
     const isActive = (wid, no) => {
         return (wid == Wid && no == cursorIndex);
     }
     return (
         <Container>
-            <FileName active={isActive(wid, no)}>FileName{wid}-{no}</FileName>
-            <FileSize active={isActive(wid, no)}>FileSize{wid}</FileSize>
-            <Updated active={isActive(wid, no)}>Updated{wid}</Updated>
+            <FileName active={isActive(wid, no)}>{(fileInfo == null) ? '' : fileInfo.fileName}</FileName>
+            <FileSize active={isActive(wid, no)}>{(fileInfo == null) ? '' : (fileInfo.isDir) ? 'DIR' : fileInfo.fileSize.toLocaleString()}</FileSize>
+            <Updated active={isActive(wid, no)}>{(fileInfo == null) ? '' : fileInfo.updated}</Updated>
         </Container>
     );
 };

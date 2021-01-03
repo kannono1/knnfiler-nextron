@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import styled from '@emotion/styled'
 import FileList from './FileList';
-import { downCursor, switchWindow, upCursor } from "../model/files";
+import { downCursor, switchWindow, readCurrentDir, upCursor } from "../model/files";
 
 const Container = styled.div(() => ({
   display: 'flex',
@@ -36,6 +36,8 @@ const FileLists: React.FC = () => {
   useEffect(() => {
     document.addEventListener('keydown', handleUserKeyPress, false);
     document.addEventListener('keyup', handleUserKeyUp, false);
+    disptch(readCurrentDir(0));
+    disptch(readCurrentDir(1));
   });
   return (
     <Container>

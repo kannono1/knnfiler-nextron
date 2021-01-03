@@ -1,16 +1,17 @@
 import React from "react";
 import styled from '@emotion/styled'
+import { useSelector } from "react-redux";
 
 type Props = {
     wid: number;
 }
 
 const Container = styled.div( () => ({
-    width: '50%',
 }));
 
 const CurrentDir: React.FC<Props> = ({ wid }) => {
-    return <Container>CurrentDir{wid}</Container>;
+    const currentDir = useSelector(state => state.files.currentDirectory[wid]);
+    return <Container>{currentDir}</Container>;
 };
 
 export default CurrentDir;

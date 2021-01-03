@@ -18,7 +18,7 @@ class MyDocument extends Document {
               color: white;
               background: black;
               font-family: Helvetica, Arial, sans-serif;
-              font-size: 18px;
+              font-size: 14px;
             }
 
             html, body {
