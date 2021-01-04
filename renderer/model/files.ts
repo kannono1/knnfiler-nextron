@@ -20,16 +20,27 @@ const initialState = {
 const readDir = (dir) => {
     const files = fs.readdirSync(dir);
     return files.map((fn) => {
-        const p = path.join(dir, fn);
+        return getFileInfo(path.join(dir, fn));
+    });
+};
+
+const getFileInfo = (p) => {
+    try {
         const stat = fs.statSync(p);
-        const fileInfo: FileInfo = {
-            fileName: fn,
+        return {
+            fileName: path.basename(p),
             fileSize: stat.size,
             updated: stat.mtime.toISOString().replace(/T/, ' ').replace(/\..+/, ''),
             isDir: stat.isDirectory(),
         };
-        return fileInfo;
-    });
+    } catch (e) {
+        return {
+            fileName: path.basename(p),
+            fileSize: -1,
+            updated: '-',
+            isDir: false,
+        }
+    }
 };
 
 const slice = createSlice({
