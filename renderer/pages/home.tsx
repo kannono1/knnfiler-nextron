@@ -4,6 +4,7 @@ import store from "../model/";
 import Head from 'next/head';
 import FileLists from '../components/FileLists';
 import TextView from '../components/TextView';
+import ImageView from '../components/ImageView';
 
 const Home = () => {
 
@@ -14,6 +15,7 @@ const Home = () => {
       </Head>
       <Provider store={store}>
         <TextView></TextView>
+        <ImageView></ImageView>
         <FileLists></FileLists>
       </Provider>
     </React.Fragment>

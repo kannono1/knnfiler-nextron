@@ -8,6 +8,7 @@ interface CounterState {
     currentDirectory: Array<string>,
     cursorIndex: Array<number>,
     fileList: Array<Array<FileInfo>>,
+    imageContent: string,
     textContent: string,
     wid: number,
     windowMode: WindowMode,
@@ -17,10 +18,16 @@ const initialState = {
     currentDirectory: [process.env.PWD, process.env.PWD],
     fileList: [[], []],
     cursorIndex: [0, 0],
+    imageContent: '',
     textContent: '',
     wid: 0,
     windowMode: WindowMode.Files,
 } as CounterState
+
+const readImageBase64 = (p) => {
+    const b = fs.readFileSync(p);
+    return b.toString('base64')
+};
 
 const readText = (p) => {
     const t = fs.readFileSync(p);
@@ -69,8 +76,14 @@ const slice = createSlice({
                 state.fileList[state.wid] = readDir(p);
             }
             else {
-                state.windowMode = WindowMode.TextView;
-                state.textContent = readText(p);
+                if (path.extname(p) == '.png') {
+                    state.windowMode = WindowMode.ImageView;
+                    state.imageContent = readImageBase64(p);
+                }
+                else {
+                    state.windowMode = WindowMode.TextView;
+                    state.textContent = readText(p);
+                }
             }
         },
         escape(state) {
