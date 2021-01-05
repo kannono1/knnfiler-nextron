@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import styled from '@emotion/styled'
 import FileList from './FileList';
-import { downCursor, enter, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
+import { downCursor, enter, escape, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
 
 const Container = styled.div(() => ({
   display: 'flex',
@@ -14,6 +14,9 @@ const FileLists: React.FC = () => {
     const { key, keyCode } = event;
     console.log('keydown', key, keyCode);
     switch (key) {
+      case 'Escape':
+        disptch(escape());
+        break;
       case 'Tab':
         disptch(switchWindow());
         break;

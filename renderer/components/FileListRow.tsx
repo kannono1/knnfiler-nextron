@@ -8,7 +8,7 @@ type Props = {
     no: number;
 }
 
-type DivProps = {
+type CssProps = {
     active: Boolean;
     isdir?: Boolean;
 }
@@ -17,20 +17,20 @@ const Container = styled.div(() => ({
     display: 'flex',
 }));
 
-const FileName = styled.div<DivProps>(props => ({
+const FileName = styled.div<CssProps>(props => ({
     width: '50%',
     color: props.isdir && 'yellow',
     backgroundColor: props.active && 'green',
 }));
 
-const FileSize = styled.div<DivProps>(props => ({
+const FileSize = styled.div<CssProps>(props => ({
     width: '15%',
     textAlign: 'right',
     color: props.isdir && 'yellow',
     backgroundColor: props.active && 'green',
 }));
 
-const Updated = styled.div<DivProps>(props => ({
+const Updated = styled.div<CssProps>(props => ({
     width: '30%',
     textAlign: 'right',
     color: props.isdir && 'yellow',
