@@ -5,6 +5,7 @@ import Head from 'next/head';
 import FileLists from '../components/FileLists';
 import TextView from '../components/TextView';
 import ImageView from '../components/ImageView';
+import KeyHandler from '../components/KeyHandler';
 
 const Home = () => {
 
@@ -14,6 +15,7 @@ const Home = () => {
         <title>knnfiler-nextron</title>
       </Head>
       <Provider store={store}>
+        <KeyHandler></KeyHandler>
         <TextView></TextView>
         <ImageView></ImageView>
         <FileLists></FileLists>
