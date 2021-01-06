@@ -59,6 +59,12 @@ const slice = createSlice({
         escape(state) {
             state.windowMode = WindowMode.Files;
         },
+        gotoFirstCursor(state) {
+            state.cursorIndex[state.wid] = 0;
+        },
+        gotoLastCursor(state) {
+            state.cursorIndex[state.wid] = state.fileList[state.wid].length -1;
+        },
         gotoParentDir(state) {
             const p = path.dirname(state.currentDirectory[state.wid]);
             state.cursorIndex[state.wid] = 0;
@@ -83,4 +89,4 @@ const slice = createSlice({
 export default slice.reducer;
 
 // reducers のKey名のActionが自動生成される
-export const { copyFilePath, downCursor, enter, escape, gotoParentDir, switchWindow, readCurrentDir, upCursor } = slice.actions;
+export const { copyFilePath, downCursor, enter, escape, gotoFirstCursor, gotoLastCursor, gotoParentDir, switchWindow, readCurrentDir, upCursor } = slice.actions;

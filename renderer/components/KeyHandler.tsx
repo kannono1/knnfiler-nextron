@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import styled from '@emotion/styled'
-import { copyFilePath, downCursor, enter, escape, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
+import { copyFilePath, downCursor, enter, escape, gotoFirstCursor, gotoLastCursor, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
 
 const Container = styled.div(() => ({
   display: 'flex',
@@ -10,14 +10,20 @@ const Container = styled.div(() => ({
 const KeyHandler: React.FC = () => {
   const disptch = useDispatch();
   const handleUserKeyPress = useCallback(event => {
-    const { key, keyCode } = event;
-    console.log('keydown', key, keyCode);
+    const { key, keyCode, ctrlKey, shiftKey } = event;
+    console.log(`keydown key:${key} code:${keyCode} crtl:${ctrlKey} shift:${shiftKey}`);
     switch (key) {
       case 'Escape':
         disptch(escape());
         break;
       case 'Tab':
         disptch(switchWindow());
+        break;
+      case 'g':
+        disptch(gotoFirstCursor());
+        break;
+      case 'G':
+        disptch(gotoLastCursor());
         break;
       case 'h':
         disptch(gotoParentDir());
