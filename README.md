@@ -1,30 +1,22 @@
 <p align="center"><img width="1002" alt="knnfiler-nextron" src="https://user-images.githubusercontent.com/1817669/103863684-a1ba6b00-5104-11eb-94d4-9fd14b823963.png"></p>
 
-## Usage
+Electron製の二画面ファイラー
 
-### Create an App
-
-```
-# with npm
-$ npm init nextron-app my-app --example with-typescript-emotion
-
-# with yarn
-$ yarn create nextron-app my-app --example with-typescript-emotion
-
-# with pnpx
-$ pnpx create-nextron-app my-app --example with-typescript-emotion
-```
+### Requirement
+- Electron 11.0.2
+- React 17.0.1
+- TypeScript 4.1.2
+- Redux-Toolkit 1.5.0
+- emotion 11.1.1
 
 ### Install Dependencies
 
 ```
-$ cd my-app
+$ cd knnfiler-nextron
 
 # using yarn or npm
 $ yarn (or `npm install`)
 
-# using pnpm
-$ pnpm install --shamefully-hoist
 ```
 
 ### Use it
