@@ -1,4 +1,4 @@
-<p align="center"><img src="https://i.imgur.com/3UKgyH7.png"></p>
+<p align="center"><img width="1002" alt="knnfiler-nextron" src="https://user-images.githubusercontent.com/1817669/103863684-a1ba6b00-5104-11eb-94d4-9fd14b823963.png"></p>
 
 ## Usage
 
