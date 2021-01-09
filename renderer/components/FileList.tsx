@@ -12,14 +12,14 @@ const Container = styled.div(() => ({
     width: '50%',
 }));
 
-const arr = new Array(30).fill(null).map((_, i) => i);
-
 const FileList: React.FC<Props> = ({ wid }) => {
-    const cursorIndex = useSelector(state => state.files.cursorIndex[wid]);
+    const screenCursorOffset = useSelector(state => state.files.screenCursorOffset[wid]);
+    const rowNB = useSelector(state => state.files.fileListRowNB);
+    const arr = new Array(rowNB).fill(null).map((_, i) => i);
     return (
         <Container>
             <CurrentDir wid={wid}></CurrentDir>
-            {arr.map((no) => <FileListRow wid={wid} no={cursorIndex + no} key={"ROW" + wid + "-" + no}></FileListRow>)}
+            {arr.map((no) => <FileListRow wid={wid} no={screenCursorOffset + no} key={"ROW" + wid + "-" + no}></FileListRow>)}
         </Container>
     );
 };

@@ -2,13 +2,15 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import path from 'path';
 import { FileInfo } from '../data/FileInfo';
 import WindowMode from "../data/WindowMode";
-import { copyToClipboard, readImageBase64, readText, readDir} from "../util/FileUtil";
+import { copyToClipboard, readImageBase64, readText, readDir } from "../util/FileUtil";
 
 interface CounterState {
     currentDirectory: Array<string>,
     cursorIndex: Array<number>,
-    fileList: Array<Array<FileInfo>>,
+    fileList: Array<Array<FileInfo>>,// [wid][fileListRowNB]
+    fileListRowNB: number,
     imageContent: string,
+    screenCursorOffset: Array<number>,
     textContent: string,
     wid: number,
     windowMode: WindowMode,
@@ -17,12 +19,37 @@ interface CounterState {
 const initialState = {
     currentDirectory: [process.env.PWD, process.env.PWD],
     fileList: [[], []],
+    fileListRowNB: 30,
     cursorIndex: [0, 0],
+    screenCursorOffset: [0, 0],
     imageContent: '',
     textContent: '',
     wid: 0,
     windowMode: WindowMode.Files,
 } as CounterState
+
+const updateScreenCursorOffset = (state, v = 0) => {
+    if (v >= 0) { // 下方向
+        if (state.cursorIndex[state.wid] >= state.screenCursorOffset[state.wid] + state.fileListRowNB) { // Indexがオフセット＋画面の行数を超えているとき
+            state.screenCursorOffset[state.wid] = state.cursorIndex[state.wid] - state.fileListRowNB + 1; // Indexが超えた分オフセットする
+        }
+    } else { // 上方向
+        if (state.screenCursorOffset[state.wid] > state.cursorIndex[state.wid]) {// Indexがオフセットより小さいとき
+            state.screenCursorOffset[state.wid] = state.cursorIndex[state.wid];// オフセット＝Index
+        }
+    }
+};
+
+const moveCursor = (state, v) => {
+    state.cursorIndex[state.wid] += v;
+    if (state.cursorIndex[state.wid] < 0) {
+        state.cursorIndex[state.wid] = 0;
+    }
+    if (state.cursorIndex[state.wid] >= state.fileList[state.wid].length - 1) {
+        state.cursorIndex[state.wid] = state.fileList[state.wid].length - 1;
+    }
+    updateScreenCursorOffset(state, v);
+};
 
 const slice = createSlice({
     name: "files", // Sliceの名称
@@ -35,13 +62,14 @@ const slice = createSlice({
             copyToClipboard(p);
         },
         downCursor(state, action: PayloadAction<number>) {
-            state.cursorIndex[state.wid] += action.payload;
+            moveCursor(state, action.payload);
         },
         enter(state) {
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             if (fileInfo.isDir) {
                 state.cursorIndex[state.wid] = 0;
+                updateScreenCursorOffset(state, -1);// 上方向として扱う
                 state.currentDirectory[state.wid] = p;
                 state.fileList[state.wid] = readDir(p);
             }
@@ -61,13 +89,16 @@ const slice = createSlice({
         },
         gotoFirstCursor(state) {
             state.cursorIndex[state.wid] = 0;
+            updateScreenCursorOffset(state, -1);// 上方向として扱う
         },
         gotoLastCursor(state) {
-            state.cursorIndex[state.wid] = state.fileList[state.wid].length -1;
+            state.cursorIndex[state.wid] = state.fileList[state.wid].length - 1;
+            updateScreenCursorOffset(state);
         },
         gotoParentDir(state) {
             const p = path.dirname(state.currentDirectory[state.wid]);
             state.cursorIndex[state.wid] = 0;
+            updateScreenCursorOffset(state, -1);
             state.currentDirectory[state.wid] = p;
             state.fileList[state.wid] = readDir(p);
         },
@@ -78,10 +109,7 @@ const slice = createSlice({
             state.wid ^= 1;
         },
         upCursor(state, action: PayloadAction<number>) {
-            state.cursorIndex[state.wid] -= action.payload;
-            if (state.cursorIndex[state.wid] < 0) {
-                state.cursorIndex[state.wid] = 0;
-            }
+            moveCursor(state, -action.payload);
         },
     },
 });

@@ -39,6 +39,7 @@ const Updated = styled.div<CssProps>(props => ({
 
 const FileListRow: React.FC<Props> = ({ wid, no }) => {
     const cursorIndex = useSelector(state => state.files.cursorIndex[wid]);
+    const screenCursorOffset = useSelector(state => state.files.screenCursorOffset[wid]);
     const Wid = useSelector(state => state.files.wid);
     const fileInfo: FileInfo = useSelector(state => state.files.fileList[wid][no]);
     const isActive = (wid, no) => {
@@ -46,9 +47,15 @@ const FileListRow: React.FC<Props> = ({ wid, no }) => {
     }
     return (
         <Container>
-            <FileName active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>{(fileInfo == null) ? '' : fileInfo.fileName}</FileName>
-            <FileSize active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>{(fileInfo == null) ? '' : (fileInfo.isDir) ? 'DIR' : fileInfo.fileSize.toLocaleString()}</FileSize>
-            <Updated active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>{(fileInfo == null) ? '' : fileInfo.updated}</Updated>
+            <FileName active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>
+                {(fileInfo == null) ? '' : fileInfo.fileName}
+            </FileName>
+            <FileSize active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>
+                {(fileInfo == null) ? '' : (fileInfo.isDir) ? 'DIR' : fileInfo.fileSize.toLocaleString()}
+            </FileSize>
+            <Updated active={isActive(wid, no)} isdir={(fileInfo == null) ? false : fileInfo.isDir}>
+                {(fileInfo == null) ? '' : fileInfo.updated}
+            </Updated>
         </Container>
     );
 };
