@@ -1,20 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import path from 'path';
-import { CursorHistory } from "./CursorHistory";
-import { CursorInfo } from "../data/CursorInfo";
+import { CursorInfo, CursorInfoDictionary } from "../data/CursorInfo";
 import { FileInfo } from '../data/FileInfo';
 import WindowMode from "../data/WindowMode";
 import { copyToClipboard, readImageBase64, readText, readDir } from "../util/FileUtil";
 
-const cursorHistories = [new CursorHistory(), new CursorHistory()];
-
 interface CounterState {
-    currentDirectory: Array<string>,
-    cursorIndex: Array<number>,
+    currentDirectory: Array<string>,// [wid]
+    cursorIndex: Array<number>,// [wid]
+    cursorInfoDictionary: Array<CursorInfoDictionary>,// [wid]
     fileList: Array<Array<FileInfo>>,// [wid][fileListRowNB]
     fileListRowNB: number,
     imageContent: string, // Base64
-    screenCursorOffset: Array<number>,
+    screenCursorOffset: Array<number>,// [wid]
     textContent: string,
     wid: number,
     windowMode: WindowMode,
@@ -23,6 +21,7 @@ interface CounterState {
 const initialState = {
     currentDirectory: [process.env.PWD, process.env.PWD],
     cursorIndex: [0, 0],
+    cursorInfoDictionary: [{}, {}],
     fileList: [[], []],
     fileListRowNB: 30,
     screenCursorOffset: [0, 0],
@@ -31,6 +30,25 @@ const initialState = {
     wid: 0,
     windowMode: WindowMode.Files,
 } as CounterState
+
+const saveCursor = (state) => {
+    state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]] = {
+        index: state.cursorIndex[state.wid],
+        offset: state.screenCursorOffset[state.wid],
+    };
+};
+
+const loadCursor = (state) => {
+    if (state.currentDirectory[state.wid] in state.cursorInfoDictionary[state.wid]) {
+        state.cursorIndex[state.wid] = state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]].index;
+        state.screenCursorOffset[state.wid] = state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]].offset;
+    }
+    else {
+        state.cursorIndex[state.wid] = 0;
+        state.screenCursorOffset[state.wid] = 0;
+    }
+
+};
 
 const updateScreenCursorOffset = (state, v = 0) => {
     if (v >= 0) { // 下方向
@@ -67,16 +85,14 @@ const slice = createSlice({
         },
         downCursor(state, action: PayloadAction<number>) {
             moveCursor(state, action.payload);
-            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
+            saveCursor(state);
         },
         enter(state) {
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             if (fileInfo.isDir) {
-                const cursorInfo = cursorHistories[state.wid].load(p);
-                state.cursorIndex[state.wid] = cursorInfo.index;
-                state.screenCursorOffset[state.wid] = cursorInfo.offset;
                 state.currentDirectory[state.wid] = p;
+                loadCursor(state);
                 state.fileList[state.wid] = readDir(p);
             }
             else {
@@ -92,23 +108,23 @@ const slice = createSlice({
         },
         escape(state) {
             state.windowMode = WindowMode.Files;
+            state.imageContent = '';
+            state.textContent = '';
         },
         gotoFirstLine(state) {
             state.cursorIndex[state.wid] = 0;
             updateScreenCursorOffset(state, -1);// 上方向として扱う
-            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
+            saveCursor(state);
         },
         gotoLastLine(state) {
             state.cursorIndex[state.wid] = state.fileList[state.wid].length - 1;
             updateScreenCursorOffset(state);
-            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
+            saveCursor(state);
         },
         gotoParentDir(state) {
             const p = path.dirname(state.currentDirectory[state.wid]);
-            const cursorInfo = cursorHistories[state.wid].load(p);
-            state.cursorIndex[state.wid] = cursorInfo.index;
-            state.screenCursorOffset[state.wid] = cursorInfo.offset;
             state.currentDirectory[state.wid] = p;
+            loadCursor(state);
             state.fileList[state.wid] = readDir(p);
         },
         readCurrentDir(state, action: PayloadAction<number>) {
@@ -119,7 +135,7 @@ const slice = createSlice({
         },
         upCursor(state, action: PayloadAction<number>) {
             moveCursor(state, -action.payload);
-            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
+            saveCursor(state);
         },
     },
 });
