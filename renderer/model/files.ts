@@ -1,15 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import path from 'path';
+import { CursorHistory } from "./CursorHistory";
+import { CursorInfo } from "../data/CursorInfo";
 import { FileInfo } from '../data/FileInfo';
 import WindowMode from "../data/WindowMode";
 import { copyToClipboard, readImageBase64, readText, readDir } from "../util/FileUtil";
+
+const cursorHistories = [new CursorHistory(), new CursorHistory()];
 
 interface CounterState {
     currentDirectory: Array<string>,
     cursorIndex: Array<number>,
     fileList: Array<Array<FileInfo>>,// [wid][fileListRowNB]
     fileListRowNB: number,
-    imageContent: string,
+    imageContent: string, // Base64
     screenCursorOffset: Array<number>,
     textContent: string,
     wid: number,
@@ -18,9 +22,9 @@ interface CounterState {
 
 const initialState = {
     currentDirectory: [process.env.PWD, process.env.PWD],
+    cursorIndex: [0, 0],
     fileList: [[], []],
     fileListRowNB: 30,
-    cursorIndex: [0, 0],
     screenCursorOffset: [0, 0],
     imageContent: '',
     textContent: '',
@@ -63,13 +67,15 @@ const slice = createSlice({
         },
         downCursor(state, action: PayloadAction<number>) {
             moveCursor(state, action.payload);
+            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
         },
         enter(state) {
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             if (fileInfo.isDir) {
-                state.cursorIndex[state.wid] = 0;
-                updateScreenCursorOffset(state, -1);// 上方向として扱う
+                const cursorInfo = cursorHistories[state.wid].load(p);
+                state.cursorIndex[state.wid] = cursorInfo.index;
+                state.screenCursorOffset[state.wid] = cursorInfo.offset;
                 state.currentDirectory[state.wid] = p;
                 state.fileList[state.wid] = readDir(p);
             }
@@ -87,18 +93,21 @@ const slice = createSlice({
         escape(state) {
             state.windowMode = WindowMode.Files;
         },
-        gotoFirstCursor(state) {
+        gotoFirstLine(state) {
             state.cursorIndex[state.wid] = 0;
             updateScreenCursorOffset(state, -1);// 上方向として扱う
+            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
         },
-        gotoLastCursor(state) {
+        gotoLastLine(state) {
             state.cursorIndex[state.wid] = state.fileList[state.wid].length - 1;
             updateScreenCursorOffset(state);
+            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
         },
         gotoParentDir(state) {
             const p = path.dirname(state.currentDirectory[state.wid]);
-            state.cursorIndex[state.wid] = 0;
-            updateScreenCursorOffset(state, -1);
+            const cursorInfo = cursorHistories[state.wid].load(p);
+            state.cursorIndex[state.wid] = cursorInfo.index;
+            state.screenCursorOffset[state.wid] = cursorInfo.offset;
             state.currentDirectory[state.wid] = p;
             state.fileList[state.wid] = readDir(p);
         },
@@ -110,6 +119,7 @@ const slice = createSlice({
         },
         upCursor(state, action: PayloadAction<number>) {
             moveCursor(state, -action.payload);
+            cursorHistories[state.wid].save(state.currentDirectory[state.wid], { index: state.cursorIndex[state.wid], offset: state.screenCursorOffset[state.wid] });
         },
     },
 });
@@ -117,4 +127,4 @@ const slice = createSlice({
 export default slice.reducer;
 
 // reducers のKey名のActionが自動生成される
-export const { copyFilePath, downCursor, enter, escape, gotoFirstCursor, gotoLastCursor, gotoParentDir, switchWindow, readCurrentDir, upCursor } = slice.actions;
+export const { copyFilePath, downCursor, enter, escape, gotoFirstLine, gotoLastLine, gotoParentDir, switchWindow, readCurrentDir, upCursor } = slice.actions;

@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import styled from '@emotion/styled'
-import { copyFilePath, downCursor, enter, escape, gotoFirstCursor, gotoLastCursor, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
+import { copyFilePath, downCursor, enter, escape, gotoFirstLine, gotoLastLine, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
 
 const Container = styled.div(() => ({
   display: 'flex',
@@ -20,10 +20,10 @@ const KeyHandler: React.FC = () => {
         disptch(switchWindow());
         break;
       case 'g':
-        disptch(gotoFirstCursor());
+        disptch(gotoFirstLine());
         break;
       case 'G':
-        disptch(gotoLastCursor());
+        disptch(gotoLastLine());
         break;
       case 'h':
         disptch(gotoParentDir());
