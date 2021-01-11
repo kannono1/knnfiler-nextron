@@ -1,11 +1,15 @@
 import React from 'react';
 import { Provider } from "react-redux";
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
 import store from "../model/";
 import Head from 'next/head';
 import FileLists from '../components/FileLists';
 import TextView from '../components/TextView';
 import ImageView from '../components/ImageView';
 import KeyHandler from '../components/KeyHandler';
+
+let persistor = persistStore(store)
 
 const Home = () => {
 
@@ -15,10 +19,12 @@ const Home = () => {
         <title>knnfiler-nextron</title>
       </Head>
       <Provider store={store}>
-        <KeyHandler></KeyHandler>
-        <TextView></TextView>
-        <ImageView></ImageView>
-        <FileLists></FileLists>
+        <PersistGate loading={null} persistor={persistor}>
+          <KeyHandler></KeyHandler>
+          <TextView></TextView>
+          <ImageView></ImageView>
+          <FileLists></FileLists>
+        </PersistGate>
       </Provider>
     </React.Fragment>
   );
