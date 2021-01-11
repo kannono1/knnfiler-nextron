@@ -77,12 +77,6 @@ const slice = createSlice({
     name: "files", // Sliceの名称
     initialState: initialState,
     reducers: {
-        copyFilePath(state) {
-            const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
-            const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
-            console.log('copyFilePath', p);
-            copyToClipboard(p);
-        },
         downCursor(state, action: PayloadAction<number>) {
             moveCursor(state, action.payload);
             saveCursor(state);
@@ -133,6 +127,20 @@ const slice = createSlice({
         switchWindow(state) {
             state.wid ^= 1;
         },
+        syncOtherWindow(state) {
+            const p = state.currentDirectory[state.wid]
+            const other = state.wid ^ 1;
+            state.currentDirectory[other] = p;
+            state.cursorIndex[other] = 0;
+            state.screenCursorOffset[other] = 0;
+            state.fileList[other] = readDir(p);
+        },
+        toClipboardFilePath(state) {
+            const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
+            const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
+            console.log('toClipboardFilePath', p);
+            copyToClipboard(p);
+        },
         upCursor(state, action: PayloadAction<number>) {
             moveCursor(state, -action.payload);
             saveCursor(state);
@@ -143,4 +151,16 @@ const slice = createSlice({
 export default slice.reducer;
 
 // reducers のKey名のActionが自動生成される
-export const { copyFilePath, downCursor, enter, escape, gotoFirstLine, gotoLastLine, gotoParentDir, switchWindow, readCurrentDir, upCursor } = slice.actions;
+export const {
+    toClipboardFilePath,
+    downCursor,
+    enter,
+    escape,
+    gotoFirstLine,
+    gotoLastLine,
+    gotoParentDir,
+    switchWindow,
+    syncOtherWindow,
+    readCurrentDir,
+    upCursor,
+} = slice.actions;

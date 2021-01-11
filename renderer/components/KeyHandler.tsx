@@ -1,7 +1,19 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import styled from '@emotion/styled'
-import { copyFilePath, downCursor, enter, escape, gotoFirstLine, gotoLastLine, gotoParentDir, switchWindow, readCurrentDir, upCursor } from "../model/files";
+import {
+  toClipboardFilePath,
+  downCursor,
+  enter,
+  escape,
+  gotoFirstLine,
+  gotoLastLine,
+  gotoParentDir,
+  switchWindow,
+  syncOtherWindow,
+  readCurrentDir,
+  upCursor,
+} from "../model/files";
 
 const Container = styled.div(() => ({
   display: 'flex',
@@ -37,8 +49,11 @@ const KeyHandler: React.FC = () => {
       case 'l':
         disptch(enter());
         break;
+      case 'O':
+        disptch(syncOtherWindow());
+        break;
       case 'y':
-        disptch(copyFilePath());
+        disptch(toClipboardFilePath());
         break;
       default:
         break;
