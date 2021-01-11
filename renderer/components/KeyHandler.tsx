@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useCallback, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from '@emotion/styled'
 import {
   toClipboardFilePath,
@@ -9,65 +9,80 @@ import {
   gotoFirstLine,
   gotoLastLine,
   gotoParentDir,
+  inputDirectoryName,
   switchWindow,
   syncOtherWindow,
   readCurrentDir,
   upCursor,
 } from "../model/files";
+import WindowMode from "../data/WindowMode";
 
 const Container = styled.div(() => ({
   display: 'flex',
 }));
 
 const KeyHandler: React.FC = () => {
+  const windowMode = useSelector(state => state.files.windowMode);
   const disptch = useDispatch();
+  const wmode = useRef();
+  wmode.current = windowMode;
   const handleUserKeyPress = useCallback(event => {
     const { key, keyCode, ctrlKey, shiftKey } = event;
-    console.log(`keydown key:${key} code:${keyCode} crtl:${ctrlKey} shift:${shiftKey}`);
-    switch (key) {
-      case 'Escape':
-        disptch(escape());
-        break;
-      case 'Tab':
-        disptch(switchWindow());
-        break;
-      case 'g':
-        disptch(gotoFirstLine());
-        break;
-      case 'G':
-        disptch(gotoLastLine());
-        break;
-      case 'h':
-        disptch(gotoParentDir());
-        break;
-      case 'j':
-        disptch(downCursor(1));
-        break;
-      case 'k':
-        disptch(upCursor(1));
-        break;
-      case 'l':
-        disptch(enter());
-        break;
-      case 'O':
-        disptch(syncOtherWindow());
-        break;
-      case 'y':
-        disptch(toClipboardFilePath());
+    console.log(`w1=:${wmode.current} keydown key:${key} code:${keyCode} crtl:${ctrlKey} shift:${shiftKey}`);
+    switch (wmode.current) {
+      case WindowMode.Files:
+        switch (key) {
+          case 'Enter':
+            disptch(enter());
+            break;
+          case 'Tab':
+            disptch(switchWindow());
+            break;
+          case 'g':
+            disptch(gotoFirstLine());
+            break;
+          case 'G':
+            disptch(gotoLastLine());
+            break;
+          case 'h':
+            disptch(gotoParentDir());
+            break;
+          case 'j':
+            disptch(downCursor(1));
+            break;
+          case 'k':
+            disptch(upCursor(1));
+            break;
+          case 'K':
+            disptch(inputDirectoryName());
+            break;
+          case 'l':
+            disptch(enter());
+            break;
+          case 'O':
+            disptch(syncOtherWindow());
+            break;
+          case 'y':
+            disptch(toClipboardFilePath());
+            break;
+          default:
+            break;
+        }
         break;
       default:
+        switch (key) {
+          case 'Escape':
+            disptch(escape());
+            break;
+          default:
+            break;
+        }
         break;
     }
   }, []);
 
-  const handleUserKeyUp = useCallback(event => {
-    const { key, keyCode } = event;
-    console.log('keyup', key, keyCode);
-  }, []);
-
   useEffect(() => {
     document.addEventListener('keydown', handleUserKeyPress, false);
-    document.addEventListener('keyup', handleUserKeyUp, false);
     disptch(readCurrentDir(0));
     disptch(readCurrentDir(1));
   });

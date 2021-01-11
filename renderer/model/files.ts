@@ -1,11 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import path from 'path';
-import { CursorInfo, CursorInfoDictionary } from "../data/CursorInfo";
+import CommandMode from "../data/CommandMode";
+import { CursorInfoDictionary } from "../data/CursorInfo";
 import { FileInfo } from '../data/FileInfo';
 import WindowMode from "../data/WindowMode";
-import { copyToClipboard, readImageBase64, readText, readDir } from "../util/FileUtil";
+import {
+    copyToClipboard,
+    mkdir,
+    readImageBase64,
+    readText,
+    readDir
+} from "../util/FileUtil";
 
 interface CounterState {
+    commandMode: CommandMode,
     currentDirectory: Array<string>,// [wid]
     cursorIndex: Array<number>,// [wid]
     cursorInfoDictionary: Array<CursorInfoDictionary>,// [wid]
@@ -19,6 +27,7 @@ interface CounterState {
 }
 
 const initialState = {
+    commandMode: CommandMode.None,
     currentDirectory: [process.env.PWD, process.env.PWD],
     cursorIndex: [0, 0],
     cursorInfoDictionary: [{}, {}],
@@ -101,6 +110,7 @@ const slice = createSlice({
             }
         },
         escape(state) {
+            state.commandMode = CommandMode.None;
             state.windowMode = WindowMode.Files;
             state.imageContent = '';
             state.textContent = '';
@@ -120,6 +130,19 @@ const slice = createSlice({
             state.currentDirectory[state.wid] = p;
             loadCursor(state);
             state.fileList[state.wid] = readDir(p);
+        },
+        inputDirectoryName(state) {
+            state.commandMode = CommandMode.MakeDirectory;
+            state.windowMode = WindowMode.InputText;
+        },
+        inputTextComplete(state, action) {
+            if (!action.payload) {
+                return;
+            }
+            const p = path.join(state.currentDirectory[state.wid], action.payload);
+            mkdir(p);
+            state.commandMode = CommandMode.None;
+            state.windowMode = WindowMode.Files;
         },
         readCurrentDir(state, action: PayloadAction<number>) {
             state.fileList[action.payload] = readDir(state.currentDirectory[action.payload]);
@@ -159,6 +182,8 @@ export const {
     gotoFirstLine,
     gotoLastLine,
     gotoParentDir,
+    inputDirectoryName,
+    inputTextComplete,
     switchWindow,
     syncOtherWindow,
     readCurrentDir,
