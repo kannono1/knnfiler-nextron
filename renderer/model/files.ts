@@ -15,6 +15,7 @@ interface CounterState {
     fileListRowNB: number,
     imageContent: string, // Base64
     screenCursorOffset: Array<number>,// [wid]
+    targetPath: string,// cursorのFilePath
     textContent: string,
     wid: number,
     windowMode: WindowMode,
@@ -29,10 +30,16 @@ const initialState = {
     fileListRowNB: 30,
     screenCursorOffset: [0, 0],
     imageContent: '',
+    targetPath: '',
     textContent: '',
     wid: 0,
     windowMode: WindowMode.Files,
 } as CounterState
+
+const getCurrentPath = (state, wid) => {
+    const fileInfo = state.fileList[wid][state.cursorIndex[wid]];
+    return path.join(state.currentDirectory[wid], fileInfo.fileName);
+};
 
 const saveCursor = (state) => {
     state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]] = {
@@ -80,8 +87,26 @@ const slice = createSlice({
     name: "files", // Sliceの名称
     initialState: initialState,
     reducers: {
+        confirmed(state) {
+            switch (state.commandMode) {
+                case CommandMode.Delete:
+                    FileUtil.remove(getCurrentPath(state, state.wid));
+                    break;
+                default:
+                    break;
+            }
+            state.targetPath = '';
+            state.commandMode = CommandMode.None;
+            state.windowMode = WindowMode.Files;
+            state.fileList[state.wid] = FileUtil.readDir(state.currentDirectory[state.wid]);
+        },
+        confirmDelete(state) {
+            state.targetPath = getCurrentPath(state, state.wid);
+            state.commandMode = CommandMode.Delete;
+            state.windowMode = WindowMode.ConfirmView;
+        },
         copy(state) {
-            const other = state.wid^1;
+            const other = state.wid ^ 1;
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const a = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             const b = path.join(state.currentDirectory[other], fileInfo.fileName);
@@ -116,6 +141,7 @@ const slice = createSlice({
             state.windowMode = WindowMode.Files;
             state.imageContent = '';
             state.textContent = '';
+            state.targetPath = '';
         },
         gotoFirstLine(state) {
             state.cursorIndex[state.wid] = 0;
@@ -147,7 +173,7 @@ const slice = createSlice({
             state.windowMode = WindowMode.Files;
         },
         move(state) {
-            const other = state.wid^1;
+            const other = state.wid ^ 1;
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const a = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             const b = path.join(state.currentDirectory[other], fileInfo.fileName);
@@ -185,6 +211,8 @@ export default slice.reducer;
 
 // reducers のKey名のActionが自動生成される
 export const {
+    confirmed,
+    confirmDelete,
     copy,
     downCursor,
     enter,

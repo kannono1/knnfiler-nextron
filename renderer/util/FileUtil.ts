@@ -10,6 +10,10 @@ export const copyToClipboard = (t) => {
     copyClipboard(t);
 }
 
+export const remove = (a) => {
+    fs.removeSync(a);
+}
+
 const getFileInfo = (p) => {
     try {
         const stat = fs.statSync(p);

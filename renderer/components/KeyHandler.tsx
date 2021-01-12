@@ -2,6 +2,8 @@ import React, { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from '@emotion/styled'
 import {
+  confirmed,
+  confirmDelete,
   copy,
   downCursor,
   enter,
@@ -43,6 +45,9 @@ const KeyHandler: React.FC = () => {
           case 'c':
             disptch(copy());
             break;
+          case 'd':
+            disptch(confirmDelete());
+            break;
           case 'g':
             disptch(gotoFirstLine());
             break;
@@ -72,6 +77,18 @@ const KeyHandler: React.FC = () => {
             break;
           case 'y':
             disptch(toClipboardFilePath());
+            break;
+          default:
+            break;
+        }
+        break;
+      case WindowMode.ConfirmView:
+        switch (key) {
+          case 'Escape':
+            disptch(escape());
+            break;
+          case 'y':
+            disptch(confirmed());
             break;
           default:
             break;
