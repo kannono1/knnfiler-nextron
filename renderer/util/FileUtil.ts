@@ -33,6 +33,10 @@ export const mkdir = (p) => {
     fs.mkdirSync(p);
 };
 
+export const move = (a, b) => {
+    fs.moveSync(a, b);
+};
+
 export const readImageBase64 = (p) => {
     const b = fs.readFileSync(p);
     return b.toString('base64')

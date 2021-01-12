@@ -10,6 +10,7 @@ import {
   gotoLastLine,
   gotoParentDir,
   inputDirectoryName,
+  move,
   switchWindow,
   syncOtherWindow,
   toClipboardFilePath,
@@ -62,6 +63,9 @@ const KeyHandler: React.FC = () => {
             break;
           case 'l':
             disptch(enter());
+            break;
+          case 'm':
+            disptch(move());
             break;
           case 'O':
             disptch(syncOtherWindow());

@@ -146,6 +146,15 @@ const slice = createSlice({
             state.commandMode = CommandMode.None;
             state.windowMode = WindowMode.Files;
         },
+        move(state) {
+            const other = state.wid^1;
+            const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
+            const a = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
+            const b = path.join(state.currentDirectory[other], fileInfo.fileName);
+            FileUtil.move(a, b);
+            state.fileList[state.wid] = FileUtil.readDir(state.currentDirectory[state.wid]);
+            state.fileList[other] = FileUtil.readDir(state.currentDirectory[other]);
+        },
         readCurrentDir(state, action: PayloadAction<number>) {
             state.fileList[action.payload] = FileUtil.readDir(state.currentDirectory[action.payload]);
         },
@@ -185,6 +194,7 @@ export const {
     gotoParentDir,
     inputDirectoryName,
     inputTextComplete,
+    move,
     switchWindow,
     syncOtherWindow,
     toClipboardFilePath,
