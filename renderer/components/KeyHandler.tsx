@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from '@emotion/styled'
 import {
-  toClipboardFilePath,
+  copy,
   downCursor,
   enter,
   escape,
@@ -12,6 +12,7 @@ import {
   inputDirectoryName,
   switchWindow,
   syncOtherWindow,
+  toClipboardFilePath,
   readCurrentDir,
   upCursor,
 } from "../model/files";
@@ -37,6 +38,9 @@ const KeyHandler: React.FC = () => {
             break;
           case 'Tab':
             disptch(switchWindow());
+            break;
+          case 'c':
+            disptch(copy());
             break;
           case 'g':
             disptch(gotoFirstLine());

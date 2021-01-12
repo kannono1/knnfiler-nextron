@@ -1,9 +1,13 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
-import copy from 'copy-to-clipboard';
+import copyClipboard from 'copy-to-clipboard';
+
+export const copy = (a, b) => {
+    fs.copySync(a, b);
+}
 
 export const copyToClipboard = (t) => {
-    copy(t);
+    copyClipboard(t);
 }
 
 const getFileInfo = (p) => {

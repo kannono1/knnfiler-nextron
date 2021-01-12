@@ -4,13 +4,7 @@ import CommandMode from "../data/CommandMode";
 import { CursorInfoDictionary } from "../data/CursorInfo";
 import { FileInfo } from '../data/FileInfo';
 import WindowMode from "../data/WindowMode";
-import {
-    copyToClipboard,
-    mkdir,
-    readImageBase64,
-    readText,
-    readDir
-} from "../util/FileUtil";
+import * as FileUtil from "../util/FileUtil";
 
 interface CounterState {
     commandMode: CommandMode,
@@ -86,6 +80,14 @@ const slice = createSlice({
     name: "files", // Sliceの名称
     initialState: initialState,
     reducers: {
+        copy(state) {
+            const other = state.wid^1;
+            const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
+            const a = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
+            const b = path.join(state.currentDirectory[other], fileInfo.fileName);
+            FileUtil.copy(a, b);
+            state.fileList[other] = FileUtil.readDir(state.currentDirectory[other]);
+        },
         downCursor(state, action: PayloadAction<number>) {
             moveCursor(state, action.payload);
             saveCursor(state);
@@ -96,16 +98,16 @@ const slice = createSlice({
             if (fileInfo.isDir) {
                 state.currentDirectory[state.wid] = p;
                 loadCursor(state);
-                state.fileList[state.wid] = readDir(p);
+                state.fileList[state.wid] = FileUtil.readDir(p);
             }
             else {
                 if (path.extname(p) == '.png') {
                     state.windowMode = WindowMode.ImageView;
-                    state.imageContent = readImageBase64(p);
+                    state.imageContent = FileUtil.readImageBase64(p);
                 }
                 else {
                     state.windowMode = WindowMode.TextView;
-                    state.textContent = readText(p);
+                    state.textContent = FileUtil.readText(p);
                 }
             }
         },
@@ -129,7 +131,7 @@ const slice = createSlice({
             const p = path.dirname(state.currentDirectory[state.wid]);
             state.currentDirectory[state.wid] = p;
             loadCursor(state);
-            state.fileList[state.wid] = readDir(p);
+            state.fileList[state.wid] = FileUtil.readDir(p);
         },
         inputDirectoryName(state) {
             state.commandMode = CommandMode.MakeDirectory;
@@ -140,12 +142,12 @@ const slice = createSlice({
                 return;
             }
             const p = path.join(state.currentDirectory[state.wid], action.payload);
-            mkdir(p);
+            FileUtil.mkdir(p);
             state.commandMode = CommandMode.None;
             state.windowMode = WindowMode.Files;
         },
         readCurrentDir(state, action: PayloadAction<number>) {
-            state.fileList[action.payload] = readDir(state.currentDirectory[action.payload]);
+            state.fileList[action.payload] = FileUtil.readDir(state.currentDirectory[action.payload]);
         },
         switchWindow(state) {
             state.wid ^= 1;
@@ -156,13 +158,12 @@ const slice = createSlice({
             state.currentDirectory[other] = p;
             state.cursorIndex[other] = 0;
             state.screenCursorOffset[other] = 0;
-            state.fileList[other] = readDir(p);
+            state.fileList[other] = FileUtil.readDir(p);
         },
         toClipboardFilePath(state) {
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
-            console.log('toClipboardFilePath', p);
-            copyToClipboard(p);
+            FileUtil.copyToClipboard(p);
         },
         upCursor(state, action: PayloadAction<number>) {
             moveCursor(state, -action.payload);
@@ -175,7 +176,7 @@ export default slice.reducer;
 
 // reducers のKey名のActionが自動生成される
 export const {
-    toClipboardFilePath,
+    copy,
     downCursor,
     enter,
     escape,
@@ -186,6 +187,7 @@ export const {
     inputTextComplete,
     switchWindow,
     syncOtherWindow,
+    toClipboardFilePath,
     readCurrentDir,
     upCursor,
 } = slice.actions;
