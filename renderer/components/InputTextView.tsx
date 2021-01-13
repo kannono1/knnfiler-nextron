@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import styled from '@emotion/styled'
+import styled from '@emotion/styled';
+import path from 'path';
 import WindowMode from '../data/WindowMode';
 import { inputTextComplete } from '../model/files';
+import CommandMode from '../data/CommandMode';
 
 type CssProps = {
     mode: WindowMode;
@@ -19,9 +21,19 @@ const InputTextView = () => {
     const disptch = useDispatch();
     const commandMode = useSelector(state => state.files.commandMode);
     const windowMode = useSelector(state => state.files.windowMode);
+    const targetPath = useSelector(state => state.files.targetPath);
     const inputEl = useRef(null);
     useEffect(() => {
-        inputEl.current.value = '';
+        switch (commandMode) {
+            case CommandMode.Delete:
+                inputEl.current.value = '';
+                break;
+            case CommandMode.Rename:
+                inputEl.current.value = path.basename(targetPath);
+                break;
+            default:
+                break;
+        }
         inputEl.current.focus();
     });
     const handleSubmit = (event) => {

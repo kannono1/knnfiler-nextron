@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from '@emotion/styled'
 import {
   confirmed,
-  confirmDelete,
+  confirmToDelete,
   copy,
   downCursor,
   enter,
@@ -11,7 +11,8 @@ import {
   gotoFirstLine,
   gotoLastLine,
   gotoParentDir,
-  inputDirectoryName,
+  inputToMkdir,
+  inputToRename,
   move,
   switchWindow,
   syncOtherWindow,
@@ -46,7 +47,7 @@ const KeyHandler: React.FC = () => {
             disptch(copy());
             break;
           case 'd':
-            disptch(confirmDelete());
+            disptch(confirmToDelete());
             break;
           case 'g':
             disptch(gotoFirstLine());
@@ -64,7 +65,7 @@ const KeyHandler: React.FC = () => {
             disptch(upCursor(1));
             break;
           case 'K':
-            disptch(inputDirectoryName());
+            disptch(inputToMkdir());
             break;
           case 'l':
             disptch(enter());
@@ -74,6 +75,9 @@ const KeyHandler: React.FC = () => {
             break;
           case 'O':
             disptch(syncOtherWindow());
+            break;
+          case 'r':
+            disptch(inputToRename());
             break;
           case 'y':
             disptch(toClipboardFilePath());
@@ -108,9 +112,8 @@ const KeyHandler: React.FC = () => {
 
   useEffect(() => {
     document.addEventListener('keydown', handleUserKeyPress, false);
-    disptch(readCurrentDir(0));
-    disptch(readCurrentDir(1));
-  });
+    disptch(readCurrentDir(2));
+  }, []);
   return (
     <Container>
     </Container>

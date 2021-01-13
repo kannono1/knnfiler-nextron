@@ -36,19 +36,19 @@ const initialState = {
     windowMode: WindowMode.Files,
 } as CounterState
 
-const getCurrentPath = (state, wid) => {
+const getCurrentPath = (state, wid: number) => {
     const fileInfo = state.fileList[wid][state.cursorIndex[wid]];
     return path.join(state.currentDirectory[wid], fileInfo.fileName);
 };
 
-const saveCursor = (state) => {
+const saveCursorPosition = (state) => {
     state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]] = {
         index: state.cursorIndex[state.wid],
         offset: state.screenCursorOffset[state.wid],
     };
 };
 
-const loadCursor = (state) => {
+const loadCursorPosition = (state) => {
     if (state.currentDirectory[state.wid] in state.cursorInfoDictionary[state.wid]) {
         state.cursorIndex[state.wid] = state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]].index;
         state.screenCursorOffset[state.wid] = state.cursorInfoDictionary[state.wid][state.currentDirectory[state.wid]].offset;
@@ -69,6 +69,19 @@ const updateScreenCursorOffset = (state, v = 0) => {
         if (state.screenCursorOffset[state.wid] > state.cursorIndex[state.wid]) {// Indexがオフセットより小さいとき
             state.screenCursorOffset[state.wid] = state.cursorIndex[state.wid];// オフセット＝Index
         }
+    }
+};
+
+const updateFileList = (state, wid: number = 2) => {
+    switch (wid) {
+        case 0:
+        case 1:
+            state.fileList[wid] = FileUtil.readDir(state.currentDirectory[wid]);
+            break;
+        default:
+            state.fileList[0] = FileUtil.readDir(state.currentDirectory[0]);
+            state.fileList[1] = FileUtil.readDir(state.currentDirectory[1]);
+            break;
     }
 };
 
@@ -98,9 +111,9 @@ const slice = createSlice({
             state.targetPath = '';
             state.commandMode = CommandMode.None;
             state.windowMode = WindowMode.Files;
-            state.fileList[state.wid] = FileUtil.readDir(state.currentDirectory[state.wid]);
+            updateFileList(state);
         },
-        confirmDelete(state) {
+        confirmToDelete(state) {
             state.targetPath = getCurrentPath(state, state.wid);
             state.commandMode = CommandMode.Delete;
             state.windowMode = WindowMode.ConfirmView;
@@ -111,19 +124,19 @@ const slice = createSlice({
             const a = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             const b = path.join(state.currentDirectory[other], fileInfo.fileName);
             FileUtil.copy(a, b);
-            state.fileList[other] = FileUtil.readDir(state.currentDirectory[other]);
+            updateFileList(state, other);
         },
         downCursor(state, action: PayloadAction<number>) {
             moveCursor(state, action.payload);
-            saveCursor(state);
+            saveCursorPosition(state);
         },
         enter(state) {
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
             const p = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             if (fileInfo.isDir) {
                 state.currentDirectory[state.wid] = p;
-                loadCursor(state);
-                state.fileList[state.wid] = FileUtil.readDir(p);
+                loadCursorPosition(state);
+                updateFileList(state, state.wid);
             }
             else {
                 if (path.extname(p) == '.png') {
@@ -146,31 +159,46 @@ const slice = createSlice({
         gotoFirstLine(state) {
             state.cursorIndex[state.wid] = 0;
             updateScreenCursorOffset(state, -1);// 上方向として扱う
-            saveCursor(state);
+            saveCursorPosition(state);
         },
         gotoLastLine(state) {
             state.cursorIndex[state.wid] = state.fileList[state.wid].length - 1;
             updateScreenCursorOffset(state);
-            saveCursor(state);
+            saveCursorPosition(state);
         },
         gotoParentDir(state) {
             const p = path.dirname(state.currentDirectory[state.wid]);
             state.currentDirectory[state.wid] = p;
-            loadCursor(state);
-            state.fileList[state.wid] = FileUtil.readDir(p);
-        },
-        inputDirectoryName(state) {
-            state.commandMode = CommandMode.MakeDirectory;
-            state.windowMode = WindowMode.InputText;
+            loadCursorPosition(state);
+            updateFileList(state, state.wid);
         },
         inputTextComplete(state, action) {
             if (!action.payload) {
                 return;
             }
             const p = path.join(state.currentDirectory[state.wid], action.payload);
-            FileUtil.mkdir(p);
+            switch (state.commandMode) {
+                case CommandMode.MakeDirectory:
+                    FileUtil.mkdir(p);
+                    break;
+                case CommandMode.Rename:
+                    FileUtil.move(getCurrentPath(state, state.wid), p);
+                    break;
+                default:
+                    break;
+            }
             state.commandMode = CommandMode.None;
             state.windowMode = WindowMode.Files;
+            updateFileList(state);
+        },
+        inputToMkdir(state) {
+            state.commandMode = CommandMode.MakeDirectory;
+            state.windowMode = WindowMode.InputText;
+        },
+        inputToRename(state) {
+            state.targetPath = getCurrentPath(state, state.wid);
+            state.commandMode = CommandMode.Rename;
+            state.windowMode = WindowMode.InputText;
         },
         move(state) {
             const other = state.wid ^ 1;
@@ -178,11 +206,10 @@ const slice = createSlice({
             const a = path.join(state.currentDirectory[state.wid], fileInfo.fileName);
             const b = path.join(state.currentDirectory[other], fileInfo.fileName);
             FileUtil.move(a, b);
-            state.fileList[state.wid] = FileUtil.readDir(state.currentDirectory[state.wid]);
-            state.fileList[other] = FileUtil.readDir(state.currentDirectory[other]);
+            updateFileList(state);
         },
         readCurrentDir(state, action: PayloadAction<number>) {
-            state.fileList[action.payload] = FileUtil.readDir(state.currentDirectory[action.payload]);
+            updateFileList(state, action.payload);
         },
         switchWindow(state) {
             state.wid ^= 1;
@@ -193,7 +220,7 @@ const slice = createSlice({
             state.currentDirectory[other] = p;
             state.cursorIndex[other] = 0;
             state.screenCursorOffset[other] = 0;
-            state.fileList[other] = FileUtil.readDir(p);
+            updateFileList(state, other);
         },
         toClipboardFilePath(state) {
             const fileInfo = state.fileList[state.wid][state.cursorIndex[state.wid]];
@@ -202,7 +229,7 @@ const slice = createSlice({
         },
         upCursor(state, action: PayloadAction<number>) {
             moveCursor(state, -action.payload);
-            saveCursor(state);
+            saveCursorPosition(state);
         },
     },
 });
@@ -212,7 +239,7 @@ export default slice.reducer;
 // reducers のKey名のActionが自動生成される
 export const {
     confirmed,
-    confirmDelete,
+    confirmToDelete,
     copy,
     downCursor,
     enter,
@@ -220,8 +247,9 @@ export const {
     gotoFirstLine,
     gotoLastLine,
     gotoParentDir,
-    inputDirectoryName,
     inputTextComplete,
+    inputToMkdir,
+    inputToRename,
     move,
     switchWindow,
     syncOtherWindow,

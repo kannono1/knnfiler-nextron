@@ -2,19 +2,19 @@ import fs from 'fs-extra';
 import path from 'path';
 import copyClipboard from 'copy-to-clipboard';
 
-export const copy = (a, b) => {
+export const copy = (a:string, b:string) => {
     fs.copySync(a, b);
 }
 
-export const copyToClipboard = (t) => {
+export const copyToClipboard = (t:string) => {
     copyClipboard(t);
 }
 
-export const remove = (a) => {
+export const remove = (a:string) => {
     fs.removeSync(a);
 }
 
-const getFileInfo = (p) => {
+const getFileInfo = (p:string) => {
     try {
         const stat = fs.statSync(p);
         return {
@@ -33,25 +33,25 @@ const getFileInfo = (p) => {
     }
 };
 
-export const mkdir = (p) => {
+export const mkdir = (p:string) => {
     fs.mkdirSync(p);
 };
 
-export const move = (a, b) => {
+export const move = (a:string, b:string) => {
     fs.moveSync(a, b);
 };
 
-export const readImageBase64 = (p) => {
+export const readImageBase64 = (p:string) => {
     const b = fs.readFileSync(p);
     return b.toString('base64')
 };
 
-export const readText = (p) => {
+export const readText = (p:string) => {
     const t = fs.readFileSync(p);
     return t.toString();
 };
 
-export const readDir = (dir) => {
+export const readDir = (dir:string) => {
     const files = fs.readdirSync(dir);
     return files.map((fn) => {
         return getFileInfo(path.join(dir, fn));
